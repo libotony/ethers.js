@@ -595,7 +595,7 @@ class CoderAddress extends Coder {
     encode(value: string): Uint8Array {
         let result = new Uint8Array(32);
         try {
-            result.set(arrayify(getAddress(value)), 12);
+            result.set(arrayify(getAddress(value, false)), 12);
         } catch (error) {
             errors.throwError('invalid address', errors.INVALID_ARGUMENT, {
                 arg: this.localName,
@@ -615,7 +615,7 @@ class CoderAddress extends Coder {
         }
         return {
             consumed: 32,
-            value: this.coerceFunc('address', getAddress(hexlify(data.slice(offset + 12, offset + 32))))
+            value: this.coerceFunc('address', getAddress(hexlify(data.slice(offset + 12, offset + 32)), false))
        }
     }
 }

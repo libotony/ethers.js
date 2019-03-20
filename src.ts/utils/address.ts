@@ -85,7 +85,7 @@ function ibanChecksum(address: string): string {
     return checksum;
 };
 
-export function getAddress(address: string): string {
+export function getAddress(address: string, checksum = true): string {
     var result = null;
 
     if (typeof(address) !== 'string') {
@@ -97,7 +97,7 @@ export function getAddress(address: string): string {
         // Missing the 0x prefix
         if (address.substring(0, 2) !== '0x') { address = '0x' + address; }
 
-        result = getChecksumAddress(address);
+        result = checksum ? getChecksumAddress(address) : address;
 
         // It is a checksummed address with a bad checksum
         if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
@@ -114,7 +114,7 @@ export function getAddress(address: string): string {
 
         result = (new BN.BN(address.substring(4), 36)).toString(16);
         while (result.length < 40) { result = '0' + result; }
-        result = getChecksumAddress('0x' + result);
+        result = checksum ? getChecksumAddress('0x' + result) : '0x' + result;
 
     } else {
         errors.throwError('invalid address', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
