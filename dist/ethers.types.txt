@@ -266,7 +266,7 @@ declare module 'ethers/utils/shims' {
 }
 
 declare module 'ethers/_version' {
-    export const version = "4.0.27";
+    export const version = "4.0.27-2";
 }
 
 declare module 'ethers/utils/bignumber' {
@@ -892,7 +892,7 @@ declare module 'ethers/providers/web3-provider' {
 declare module 'ethers/utils/address' {
     import { BigNumber } from 'ethers/utils/bignumber';
     import { Arrayish } from 'ethers/utils/bytes';
-    export function getAddress(address: string): string;
+    export function getAddress(address: string, checksum?: boolean): string;
     export function getIcapAddress(address: string): string;
     export function getContractAddress(transaction: {
         from: string;

@@ -1,6 +1,6 @@
 {
   "name": "@vechain/ethers",
-  "version": "4.0.27-1",
+  "version": "4.0.27-2",
   "description": "Ethereum wallet library.",
   "main": "./index.js",
   "types": "./index.d.ts",

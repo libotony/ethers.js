@@ -69,7 +69,8 @@ function ibanChecksum(address) {
     return checksum;
 }
 ;
-function getAddress(address) {
+function getAddress(address, checksum) {
+    if (checksum === void 0) { checksum = true; }
     var result = null;
     if (typeof (address) !== 'string') {
         errors.throwError('invalid address', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
@@ -79,10 +80,15 @@ function getAddress(address) {
         if (address.substring(0, 2) !== '0x') {
             address = '0x' + address;
         }
-        result = getChecksumAddress(address);
-        // It is a checksummed address with a bad checksum
-        if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
-            errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+        if (checksum) {
+            result = getChecksumAddress(address);
+            // It is a checksummed address with a bad checksum
+            if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
+                errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+            }
+        }
+        else {
+            result = address;
         }
         // Maybe ICAP? (we only support direct mode)
     }
@@ -95,7 +101,7 @@ function getAddress(address) {
         while (result.length < 40) {
             result = '0' + result;
         }
-        result = getChecksumAddress('0x' + result);
+        result = checksum ? getChecksumAddress('0x' + result) : '0x' + result;
     }
     else {
         errors.throwError('invalid address', errors.INVALID_ARGUMENT, { arg: 'address', value: address });

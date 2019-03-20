@@ -97,13 +97,16 @@ export function getAddress(address: string, checksum = true): string {
         // Missing the 0x prefix
         if (address.substring(0, 2) !== '0x') { address = '0x' + address; }
 
-        result = checksum ? getChecksumAddress(address) : address;
+        if (checksum) {
+            result = getChecksumAddress(address)
 
-        // It is a checksummed address with a bad checksum
-        if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
-            errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+            // It is a checksummed address with a bad checksum
+            if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
+                errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+            }
+        } else {
+            result = address
         }
-
     // Maybe ICAP? (we only support direct mode)
     } else if (address.match(/^XE[0-9]{2}[0-9A-Za-z]{30,31}$/)) {
 

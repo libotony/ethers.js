@@ -1,7 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.ethers = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.version = "4.0.27";
+exports.version = "4.0.27-2";
 
 },{}],2:[function(require,module,exports){
 "use strict";
@@ -12832,7 +12832,7 @@ var CoderAddress = /** @class */ (function (_super) {
     CoderAddress.prototype.encode = function (value) {
         var result = new Uint8Array(32);
         try {
-            result.set(bytes_1.arrayify(address_1.getAddress(value)), 12);
+            result.set(bytes_1.arrayify(address_1.getAddress(value, false)), 12);
         }
         catch (error) {
             errors.throwError('invalid address', errors.INVALID_ARGUMENT, {
@@ -12853,7 +12853,7 @@ var CoderAddress = /** @class */ (function (_super) {
         }
         return {
             consumed: 32,
-            value: this.coerceFunc('address', address_1.getAddress(bytes_1.hexlify(data.slice(offset + 12, offset + 32))))
+            value: this.coerceFunc('address', address_1.getAddress(bytes_1.hexlify(data.slice(offset + 12, offset + 32)), false))
         };
     };
     return CoderAddress;
@@ -13363,7 +13363,8 @@ function ibanChecksum(address) {
     return checksum;
 }
 ;
-function getAddress(address) {
+function getAddress(address, checksum) {
+    if (checksum === void 0) { checksum = true; }
     var result = null;
     if (typeof (address) !== 'string') {
         errors.throwError('invalid address', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
@@ -13373,10 +13374,15 @@ function getAddress(address) {
         if (address.substring(0, 2) !== '0x') {
             address = '0x' + address;
         }
-        result = getChecksumAddress(address);
-        // It is a checksummed address with a bad checksum
-        if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
-            errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+        if (checksum) {
+            result = getChecksumAddress(address);
+            // It is a checksummed address with a bad checksum
+            if (address.match(/([A-F].*[a-f])|([a-f].*[A-F])/) && result !== address) {
+                errors.throwError('bad address checksum', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
+            }
+        }
+        else {
+            result = address;
         }
         // Maybe ICAP? (we only support direct mode)
     }
@@ -13389,7 +13395,7 @@ function getAddress(address) {
         while (result.length < 40) {
             result = '0' + result;
         }
-        result = getChecksumAddress('0x' + result);
+        result = checksum ? getChecksumAddress('0x' + result) : '0x' + result;
     }
     else {
         errors.throwError('invalid address', errors.INVALID_ARGUMENT, { arg: 'address', value: address });
